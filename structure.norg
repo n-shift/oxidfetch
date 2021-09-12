@@ -1,0 +1,20 @@
+@document.meta
+    title: structure
+    description: structure of oxidfetch
+    author: shift
+    categories: 
+    created: 2021-09-12
+    version: 0.1
+@end
+
+* Oxidfetch is a fetch cli in rust
+ ** potential feature list
+  *** configurate using multiple languages
+    - lua
+    - duckscript
+    - rhai
+  *** descriptive errors
+  *** caching your config into msgpack
+      Cache output of your config script to msgpack file
+  *** either use your OS ascii logo, or custom text
+  *** display only what you need, nothing else
