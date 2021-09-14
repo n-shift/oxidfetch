@@ -40,7 +40,7 @@ pub struct Component {
     pub content: String,
 }
 
-/// Alias to [Vec<u8>]
+/// Alias to `[Vec]<[u8]>`
 ///
 /// Used for better readability
 type MsgPack = Vec<u8>;
@@ -89,38 +89,8 @@ impl TryFrom<MsgPack> for Config {
 }
 
 impl TryFrom<Config> for MsgPack {
-    /// Required type by trait
     type Error = anyhow::Error;
 
-    /// Convert given [Config] into [MsgPack] buffer
-    ///
-    /// ```
-    /// let cfg: Config = {
-    ///     logo: Logo::disabled,
-    ///     components: vec![Component {
-    ///         name: "OS".into(),
-    ///         icon: "*".into(),
-    ///         content: "Some OS".into(),
-    ///     }],
-    /// }
-    ///
-    /// // using try_into()
-    /// let buf: MsgPack = cfg.try_into()?;
-    ///
-    /// assert_eq!(buf, vec![
-    ///     0x92, 0x81, 0x2, 0xc0, 0x91, 0x93, 0xa2, 0x4f, 0x53, 0xa1, 0x21, 0xa7, 0x53, 0x6f,
-    ///     0x6d, 0x65, 0x20, 0x4f, 0x53,
-    /// ]);
-    ///
-    /// // using try_from()
-    /// let buf: Msgpack = MsgPack::try_from(cfg)?;
-    ///
-    /// assert_eq!(buf, vec![
-    ///     0x92, 0x81, 0x2, 0xc0, 0x91, 0x93, 0xa2, 0x4f, 0x53, 0xa1, 0x21, 0xa7, 0x53, 0x6f,
-    ///     0x6d, 0x65, 0x20, 0x4f, 0x53,
-    /// ]);
-    ///
-    /// ```
     fn try_from(config: Config) -> Result<Self> {
         rmp_serde::to_vec(&config).context("Failed to create msgpack structure from config")
     }

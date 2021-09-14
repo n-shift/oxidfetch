@@ -1,9 +1,9 @@
 //! Rendering config into text
 use crate::config::{Config, Logo};
 
-/// [config::Config] to [Vec<String>]
+/// [config::Config](crate::config::Config) to `[Vec]<[String]>`
 ///
-/// Takes passed [Config],
+/// Takes passed [config::Config](crate::config::Config),
 /// merges logo (vector of logo lines) and components:
 /// ```txt
 /// logoline1 {component1.icon}{component1.name}:
