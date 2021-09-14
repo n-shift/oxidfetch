@@ -1,0 +1,31 @@
+@document.meta
+	title: roadmap
+	description: 
+	author: shift
+	categories: 
+	created: 2021-09-13
+	version: 0.1
+@end
+
+- [x] config <-> msgpack
+- [*] config -> fetch text
+    ~ match `Logo`
+        - add default OS logo if specified and exists
+        - add custom logo if specified
+        - do not add logo if specified
+    ~ components...
+        ~ construct components vector
+            @code rust
+            // snip
+            // vector[n]
+            "component_icon component_name:",
+            // vector[n+1]
+            "component text",
+            // snip
+            @end
+        ~ merge logo vector and components vector
+          `logo[n] += component`
+    ~ display text
+    ~ done!
+- [ ] scriptable language -> config
+- [ ] scriptable language -> cached config
