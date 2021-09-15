@@ -1,5 +1,6 @@
 //! Rendering config into text
 use crate::config::{Config, Logo};
+use regex::Regex;
 
 /// [config::Config](crate::config::Config) to `[Vec]<[String]>`
 ///
@@ -40,7 +41,77 @@ fn render(cfg: Config) -> Vec<String> {
                 component.icon.unwrap_or("".into()),
                 component.name,
             ));
-            components_text.push(format!("{}", component.content,));
+
+            // render component.content's colors
+            // TODO: move this to a feature
+            // or
+            // TODO: compile colors
+            let pattern_general = Regex::new(r"((?:\\\\)*\[.*?(?:\\\\)*\])?([^\[]*)").unwrap();
+            let pattern_color = Regex::new(r"(?:\\\\)*\[(.*?)(?:\\\\)*\]").unwrap();
+            let mut display: Vec<String> = Vec::new();
+            for found in pattern_general.captures_iter(&component.content) {
+                if let Some(color) = found.get(1) {
+                    display.push(color.as_str().into());
+                }
+                display.push(found[2].into());
+            }
+
+            if display.is_empty() {
+                display.push(component.content);
+            }
+
+            let mut colored: Vec<String> = Vec::new();
+            for item in display {
+                if pattern_color.is_match(&item) {
+                    let captures = pattern_color.captures_iter(&item);
+                    let index = {
+                        if colored.len() != 0 {
+                            Some(colored.len() - 1)
+                        } else {
+                            None
+                        }
+                    };
+
+                    if index != None {
+                        let last_item = colored.get_mut(index.unwrap()).unwrap();
+                        for found in captures {
+                            match &found[1] {
+                                "black" => *last_item += "\x1b[30m",
+                                "red" => *last_item += "\x1b[31m",
+                                "green" => *last_item += "\x1b[32m",
+                                "yellow" => *last_item += "\x1b[33m",
+                                "blue" => *last_item += "\x1b[34m",
+                                "magenta" => *last_item += "\x1b[35m",
+                                "cyan" => *last_item += "\x1b[36m",
+                                "white" => *last_item += "\x1b[37m",
+                                "_" => *last_item += "\x1b[0m",
+                                &_ => (),
+                            };
+                        }
+                    } else {
+                        for found in captures {
+                            match &found[1] {
+                                "black" => colored.push("\x1b[30m".into()),
+                                "red" => colored.push("\x1b[31m".into()),
+                                "green" => colored.push("\x1b[32m".into()),
+                                "yellow" => colored.push("\x1b[33m".into()),
+                                "blue" => colored.push("\x1b[34m".into()),
+                                "magenta" => colored.push("\x1b[35m".into()),
+                                "cyan" => colored.push("\x1b[36m".into()),
+                                "white" => colored.push("\x1b[37m".into()),
+                                "_" => colored.push("\x1b[0m".into()),
+                                &_ => (),
+                            };
+
+                        }
+                    }
+                } else {
+                    colored.push(item.into());
+                }
+            }
+            let content = colored.join("");
+
+            components_text.push(format!("{}", content));
             components_text.push("".into()); // TODO: allow user configurate whether there's new line after component or not
         }
     }
@@ -92,6 +163,11 @@ mod tests {
                     icon: None,
                     content: "Some component text".into(),
                 },
+                config::Component {
+                    name: "Component with colored text".into(),
+                    icon: None,
+                    content: "[black]1[red]2[green]3[yellow]4[blue]5[magenta]6[cyan]7[white]8[_]9".into(),
+                },
             ],
         });
 
@@ -101,6 +177,9 @@ mod tests {
             "L O G O     ",
             "Component without an icon:",
             "Some component text",
+            "",
+            "Component with colored text:",
+            "\x1b[30m1\x1b[31m2\x1b[32m3\x1b[33m4\x1b[34m5\x1b[35m6\x1b[36m7\x1b[37m8\x1b[0m9",
             "",
         ];
 

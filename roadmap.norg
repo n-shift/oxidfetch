@@ -25,6 +25,11 @@
             @end
         ~ merge logo vector and components vector
           `logo[n] += component`
+    ~ add colors to text
+        ~ text -> `"some text...", "[color]", "... some text"`
+        ~ iterate over vector
+        ~ if we find [...] - try to understand it as color
+        ~ apply color to previous element
     ~ display text
     ~ done!
 - [ ] scriptable language -> config
