@@ -7,7 +7,7 @@ use std::convert::{TryFrom, TryInto};
 /// Config structure
 ///
 /// Logo and vector of [components](Component) provided by user
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Config {
     pub logo: Logo,
     pub components: Vec<Component>,
@@ -17,7 +17,7 @@ pub struct Config {
 ///
 /// Display custom logo, premade or nothing
 // TODO: usage
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Logo {
     /// use premade OS logo
     Os,
@@ -30,7 +30,7 @@ pub enum Logo {
 /// oxidfetch component structure
 ///
 /// Component can be whatever uses wants to have; oxidfetch just glues everything into great fetch
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Component {
     /// name of component
     pub name: String,
@@ -38,6 +38,19 @@ pub struct Component {
     pub icon: Option<String>,
     /// text inside of component
     pub content: String,
+}
+
+impl Config {
+    pub fn new() -> Self {
+        Self {
+            logo: Logo::Disabled,
+            components: vec![Component {
+                name: "".into(),
+                icon: None,
+                content: "".into(),
+            }],
+        }
+    }
 }
 
 /// Alias to `[Vec]<[u8]>`

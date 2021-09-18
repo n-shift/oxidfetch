@@ -102,7 +102,6 @@ fn render(cfg: Config) -> Vec<String> {
                                 "_" => colored.push("\x1b[0m".into()),
                                 &_ => (),
                             };
-
                         }
                     }
                 } else {
@@ -166,7 +165,8 @@ mod tests {
                 config::Component {
                     name: "Component with colored text".into(),
                     icon: None,
-                    content: "[black]1[red]2[green]3[yellow]4[blue]5[magenta]6[cyan]7[white]8[_]9".into(),
+                    content: "[black]1[red]2[green]3[yellow]4[blue]5[magenta]6[cyan]7[white]8[_]9"
+                        .into(),
                 },
             ],
         });
