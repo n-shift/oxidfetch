@@ -11,6 +11,12 @@ use std::convert::{TryFrom, TryInto};
 pub struct Config {
     pub logo: Logo,
     pub components: Vec<Component>,
+    /// newline after component
+    pub newline: bool,
+    /// spacing between logo and text
+    pub spacing: usize,
+    /// display name and component text on one line
+    pub oneline: bool,
 }
 
 /// Config logo variants
@@ -49,6 +55,9 @@ impl Config {
                 icon: None,
                 content: "".into(),
             }],
+            newline: true,
+            spacing: 1,
+            oneline: true,
         }
     }
 }

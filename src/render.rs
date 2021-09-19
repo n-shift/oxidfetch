@@ -85,7 +85,7 @@ fn colorize(text: String) -> String {
 /// ```
 fn render(cfg: Config) -> Vec<String> {
     // logo
-    let mut unrendered_logo: Vec<String> = Vec::new();
+    let mut colorless_logo: Vec<String> = Vec::new();
     let mut logo: Vec<String> = Vec::new();
 
     // write logo to variable
@@ -94,13 +94,13 @@ fn render(cfg: Config) -> Vec<String> {
             unimplemented!();
         }
         Logo::Custom(provided_logo) => {
-            unrendered_logo = provided_logo;
+            colorless_logo = provided_logo;
         }
         Logo::Disabled => {}
     }
 
-    if !unrendered_logo.is_empty() {
-        for line in unrendered_logo {
+    if !colorless_logo.is_empty() {
+        for line in colorless_logo {
             logo.push(colorize(line.to_string()));
         }
     }
@@ -113,18 +113,15 @@ fn render(cfg: Config) -> Vec<String> {
 
     if !cfg.components.is_empty() {
         for component in cfg.components {
-            let name = colorize(component.name);
-            let icon = colorize(component.icon.unwrap_or("".into()));
-            let content = colorize(component.content);
-
-            components_text.push(format!(
-                "{}{}:",
-                icon,
-                name,
-            ));
-
-            components_text.push(format!("{}", content));
-            components_text.push("".into()); // TODO: allow user configurate whether there's new line after component or not
+            if cfg.oneline {
+                components_text.push(colorize(format!("{}{}: {}", component.icon.unwrap_or("".into()), component.name, component.content)));
+            } else {
+                components_text.push(colorize(format!("{}{}:", component.icon.unwrap_or("".into()), component.name)));
+                components_text.push(colorize(format!("{}", component.content)));
+            }
+            if cfg.newline {
+                components_text.push("".into());
+            }
         }
     }
 
@@ -134,7 +131,8 @@ fn render(cfg: Config) -> Vec<String> {
         if pos >= output.len() {
             output.push(item.into());
         } else {
-            output[pos] = format!("{} {}", output[pos], item); // TODO: allow user configurate amount of spacing between logo and text
+            let spacing = " ".repeat(cfg.spacing);
+            output[pos] = format!("{}{}{}", output[pos], spacing, item);
         }
     }
 

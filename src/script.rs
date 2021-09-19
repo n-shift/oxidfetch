@@ -72,6 +72,27 @@ impl UserData for Config {
 
             Ok(())
         });
+
+        fields.add_field_method_get("newline", |_, this| Ok(this.newline));
+        fields.add_field_method_set("newline", |_, this, val: bool| {
+            this.newline = val;
+
+            Ok(())
+        });
+
+        fields.add_field_method_get("spacing", |_, this| Ok(this.spacing));
+        fields.add_field_method_set("spacing", |_, this, val: usize| {
+            this.spacing = val;
+
+            Ok(())
+        });
+
+        fields.add_field_method_get("oneline", |_, this| Ok(this.oneline));
+        fields.add_field_method_set("oneline", |_, this, val: bool| {
+            this.newline = val;
+
+            Ok(())
+        });
     }
 }
 
