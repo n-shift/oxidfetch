@@ -58,7 +58,7 @@ impl UserData for Config {
         fields.add_field_method_set("logo", |_, this, val: Vec<String>| {
             match val[0].as_str() {
                 "Os" => this.logo = Logo::Os,
-                "Custom" => this.logo = Logo::Custom(val[1..val.len() - 1].to_vec()),
+                "Custom" => this.logo = Logo::Custom(val[1..val.len()].to_vec()),
                 "Disabled" => this.logo = Logo::Disabled,
                 _ => (),
             }
