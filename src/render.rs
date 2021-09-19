@@ -85,6 +85,7 @@ fn colorize(text: String) -> String {
 /// ```
 fn render(cfg: Config) -> Vec<String> {
     // logo
+    let mut unrendered_logo: Vec<String> = Vec::new();
     let mut logo: Vec<String> = Vec::new();
 
     // write logo to variable
@@ -93,9 +94,15 @@ fn render(cfg: Config) -> Vec<String> {
             unimplemented!();
         }
         Logo::Custom(provided_logo) => {
-            logo = provided_logo;
+            unrendered_logo = provided_logo;
         }
         Logo::Disabled => {}
+    }
+
+    if !unrendered_logo.is_empty() {
+        for line in unrendered_logo {
+            logo.push(colorize(line.to_string()));
+        }
     }
 
     // text of component
