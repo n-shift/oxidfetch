@@ -1,8 +1,12 @@
 //! Config structure and conversion between [msgpack](https://msgpack.org/)
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, anyhow};
 #[allow(unused_imports)]
 use std::convert::{TryFrom, TryInto};
+use std::fs;
+use std::fs::File;
+use std::io::{Read, BufReader, Write};
+use std::path::Path;
 
 /// Config structure
 ///
@@ -59,6 +63,56 @@ impl Config {
             spacing: 1,
             oneline: true,
         }
+    }
+
+    pub fn fetch_msgpack() -> Result<Self> {
+        #[cfg(target_os = "windows")]
+        let cfg_path = format!(
+            "{}\\.config\\oxidfetch\\config.mpack",
+            std::env::var("USERPROFILE").unwrap()
+        );
+        #[cfg(not(target_os = "windows"))]
+        let cfg_path = format!(
+            "{}/.config/oxidfetch/config.mpack",
+            std::env::var("HOME").unwrap()
+        );
+
+        if Path::new(&cfg_path).exists() {
+            let cfg = File::open(cfg_path).context("failed to load config.mpack")?;
+            let mut reader = BufReader::new(cfg);
+            let mut buffer: MsgPack = Vec::new();
+            reader.read_to_end(&mut buffer).context("failed to read config.mpack")?;
+            buffer.try_into().context("failed to convert msgpack into config")
+        } else {
+            Err(anyhow!("config.mpack not found"))
+        }
+    }
+
+    pub fn cache(self) -> Result<()> {
+        let msgpack: MsgPack = self.try_into()?;
+        
+        #[cfg(target_os = "windows")]
+        let mut cfg_path = format!(
+            "{}\\.config\\oxidfetch\\",
+            std::env::var("USERPROFILE").unwrap()
+        );
+        #[cfg(not(target_os = "windows"))]
+        let mut cfg_path = format!(
+            "{}/.config/oxidfetch/",
+            std::env::var("HOME").unwrap()
+        );
+
+        if !Path::new(&cfg_path).exists() {
+            fs::create_dir_all(&cfg_path).context("failed to create ~/.config/oxidfetch/")?;
+        }
+        cfg_path += "config.mpack";
+
+        if !Path::new(&cfg_path).exists() {
+            let mut file = File::create(&cfg_path).context("failed to create config.mpack file")?;
+
+            file.write_all(&msgpack).context("failed to cache config")?;
+        }
+        Ok(())
     }
 }
 

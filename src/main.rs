@@ -8,8 +8,13 @@ mod render;
 mod script;
 
 fn main() -> Result<()> {
-    let cfg = script::extract_config()?;
-    render::display(cfg);
+    if let Ok(cfg) = config::Config::fetch_msgpack() {
+        render::display(cfg);
+    } else {
+        let cfg = script::extract_config()?;
+        render::display(cfg.clone());
+        cfg.cache()?;
+    }
 
     Ok(())
 }
