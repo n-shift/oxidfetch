@@ -114,9 +114,18 @@ fn render(cfg: Config) -> Vec<String> {
     if !cfg.components.is_empty() {
         for component in cfg.components {
             if cfg.oneline {
-                components_text.push(colorize(format!("{}{}: {}", component.icon.unwrap_or("".into()), component.name, component.content)));
+                components_text.push(colorize(format!(
+                    "{}{}: {}",
+                    component.icon.unwrap_or("".into()),
+                    component.name,
+                    component.content
+                )));
             } else {
-                components_text.push(colorize(format!("{}{}:", component.icon.unwrap_or("".into()), component.name)));
+                components_text.push(colorize(format!(
+                    "{}{}:",
+                    component.icon.unwrap_or("".into()),
+                    component.name
+                )));
                 components_text.push(colorize(format!("{}", component.content)));
             }
             if cfg.newline {

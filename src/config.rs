@@ -1,11 +1,11 @@
 //! Config structure and conversion between [msgpack](https://msgpack.org/)
 
-use anyhow::{Context, Result, anyhow};
+use anyhow::{anyhow, Context, Result};
 #[allow(unused_imports)]
 use std::convert::{TryFrom, TryInto};
 use std::fs;
 use std::fs::File;
-use std::io::{Read, BufReader, Write};
+use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
 /// Config structure
@@ -81,8 +81,12 @@ impl Config {
             let cfg = File::open(cfg_path).context("failed to load config.mpack")?;
             let mut reader = BufReader::new(cfg);
             let mut buffer: MsgPack = Vec::new();
-            reader.read_to_end(&mut buffer).context("failed to read config.mpack")?;
-            buffer.try_into().context("failed to convert msgpack into config")
+            reader
+                .read_to_end(&mut buffer)
+                .context("failed to read config.mpack")?;
+            buffer
+                .try_into()
+                .context("failed to convert msgpack into config")
         } else {
             Err(anyhow!("config.mpack not found"))
         }
@@ -90,17 +94,14 @@ impl Config {
 
     pub fn cache(self) -> Result<()> {
         let msgpack: MsgPack = self.try_into()?;
-        
+
         #[cfg(target_os = "windows")]
         let mut cfg_path = format!(
             "{}\\.config\\oxidfetch\\",
             std::env::var("USERPROFILE").unwrap()
         );
         #[cfg(not(target_os = "windows"))]
-        let mut cfg_path = format!(
-            "{}/.config/oxidfetch/",
-            std::env::var("HOME").unwrap()
-        );
+        let mut cfg_path = format!("{}/.config/oxidfetch/", std::env::var("HOME").unwrap());
 
         if !Path::new(&cfg_path).exists() {
             fs::create_dir_all(&cfg_path).context("failed to create ~/.config/oxidfetch/")?;
