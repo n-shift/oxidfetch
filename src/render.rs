@@ -1,5 +1,6 @@
 //! Rendering config into text
 use crate::config::{Config, Logo};
+use crate::module;
 use regex::Regex;
 
 /// Render colors inside given string
@@ -72,6 +73,62 @@ fn colorize(text: String) -> String {
     colored.join("")
 }
 
+fn load(text: String) -> String {
+    let pattern_general = Regex::new(r"((?:\\\\)*\{.*?(?:\\\\)*\})?([^\{]*)").unwrap();
+    let pattern_load = Regex::new(r"(?:\\\\)*\{(.*?)(?:\\\\)*\}").unwrap();
+    let mut display: Vec<String> = Vec::new();
+    for found in pattern_general.captures_iter(&text) {
+        if let Some(to_load) = found.get(1) {
+            display.push(to_load.as_str().into());
+        }
+        display.push(found[2].into());
+    }
+
+    if display.is_empty() {
+        display.push(text);
+    }
+
+    let mut loaded: Vec<String> = Vec::new();
+    for item in display {
+        if pattern_load.is_match(&item) {
+            let captures = pattern_load.captures_iter(&item);
+            let index = {
+                if loaded.len() != 0 {
+                    Some(loaded.len() - 1)
+                } else {
+                    None
+                }
+            };
+
+            if index != None {
+                let last_item = loaded.get_mut(index.unwrap()).unwrap();
+                for found in captures {
+                    match &found[1] {
+                        "uptime" => *last_item += module::uptime::fetch().as_str(),
+                        "username" => *last_item += module::host::fetch()[0].as_str(),
+                        "hostname" => *last_item += module::host::fetch()[1].as_str(),
+                        "os" => *last_item += module::os::fetch().as_str(),
+                        &_ => (),
+                    };
+                }
+            } else {
+                for found in captures {
+                    match &found[1] {
+                        "uptime" => loaded.push(module::uptime::fetch()),
+                        "username" => loaded.push(module::host::fetch()[0].clone()),
+                        "hostname" => loaded.push(module::host::fetch()[1].clone()),
+                        "os" => loaded.push(module::os::fetch()),
+                        &_ => (),
+                    };
+                }
+            }
+        } else {
+            loaded.push(item.into());
+        }
+    }
+    loaded.join("")
+}
+
 /// [config::Config](crate::config::Config) to `[Vec]<[String]>`
 ///
 /// Takes passed [config::Config](crate::config::Config),
@@ -118,7 +175,7 @@ fn render(cfg: Config) -> Vec<String> {
                     "{}{}: {}",
                     component.icon.unwrap_or("".into()),
                     component.name,
-                    component.content
+                    load(component.content)
                 )));
             } else {
                 components_text.push(colorize(format!(
@@ -126,7 +183,7 @@ fn render(cfg: Config) -> Vec<String> {
                     component.icon.unwrap_or("".into()),
                     component.name
                 )));
-                components_text.push(colorize(format!("{}", component.content)));
+                components_text.push(load(colorize(format!("{}", component.content))));
             }
             if cfg.newline {
                 components_text.push("".into());
