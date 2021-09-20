@@ -73,6 +73,18 @@ fn colorize(text: String) -> String {
     colored.join("")
 }
 
+fn indentation(logo: &Vec<String>) -> usize {
+    let pattern_general = Regex::new(r"(?:(?:\\\\)*\[.*?(?:\\\\)*\])?([^\[]*)").unwrap();
+    let last_line = logo[logo.len() - 1].clone();
+    let mut spaces: usize = 0;
+    for found in pattern_general.captures_iter(&last_line) {
+        spaces = found[1].to_string().chars().count();
+        break;
+    }
+
+    spaces
+}
+
 fn load(text: String) -> String {
     let pattern_general = Regex::new(r"((?:\\\\)*\{.*?(?:\\\\)*\})?([^\{]*)").unwrap();
     let pattern_load = Regex::new(r"(?:\\\\)*\{(.*?)(?:\\\\)*\}").unwrap();
@@ -141,6 +153,7 @@ fn load(text: String) -> String {
 /// {component2.content}
 /// ```
 fn render(cfg: Config) -> Vec<String> {
+    let mut indent: usize = 0;
     // logo
     let mut colorless_logo: Vec<String> = Vec::new();
     let mut logo: Vec<String> = Vec::new();
@@ -157,6 +170,7 @@ fn render(cfg: Config) -> Vec<String> {
     }
 
     if !colorless_logo.is_empty() {
+        indent = indentation(&colorless_logo);
         for line in colorless_logo {
             logo.push(colorize(line.to_string()));
         }
@@ -193,9 +207,14 @@ fn render(cfg: Config) -> Vec<String> {
 
     // merge logo and component
     let mut output = logo;
+    let had_logo = !output.is_empty();
     for (pos, item) in components_text.iter().enumerate() {
         if pos >= output.len() {
-            output.push(item.into());
+            let mut spacing = " ".repeat(indent);
+            if had_logo {
+                spacing += " ".repeat(cfg.spacing).as_str();
+            }
+            output.push(format!("{}{}", spacing, item));
         } else {
             let spacing = " ".repeat(cfg.spacing);
             output[pos] = format!("{}{}{}", output[pos], spacing, item);
@@ -255,12 +274,12 @@ mod tests {
             "S O M E     * Component with an icon:",
             "C U S T O M Some component text",
             "L O G O     ",
-            "Component without an icon:",
-            "Some component text",
-            "",
-            "Component with colored text:",
-            "\x1b[30m1\x1b[31m2\x1b[32m3\x1b[33m4\x1b[34m5\x1b[35m6\x1b[36m7\x1b[37m8\x1b[0m9",
-            "",
+            "            Component without an icon:",
+            "            Some component text",
+            "            ",
+            "            Component with colored text:",
+            "            \x1b[30m1\x1b[31m2\x1b[32m3\x1b[33m4\x1b[34m5\x1b[35m6\x1b[36m7\x1b[37m8\x1b[0m9",
+            "            ",
         ];
 
         assert_eq!(rendered, expected);
