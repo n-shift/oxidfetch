@@ -10,7 +10,7 @@ impl<'lua> ToLua<'lua> for Component {
     fn to_lua(self, lua: &'lua Lua) -> mlua::Result<Value<'lua>> {
         let component = lua.create_table()?;
         component.set("name", self.name)?;
-        component.set("icon", self.icon.unwrap_or("".into()))?;
+        component.set("icon", self.icon.unwrap_or_else(|| "".into()))?;
         component.set("content", self.content)?;
 
         Ok(Value::Table(component))

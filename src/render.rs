@@ -27,7 +27,7 @@ fn colorize(text: String) -> String {
         if pattern_color.is_match(&item) {
             let captures = pattern_color.captures_iter(&item);
             let index = {
-                if colored.len() != 0 {
+                if !colored.is_empty() {
                     Some(colored.len() - 1)
                 } else {
                     None
@@ -67,13 +67,13 @@ fn colorize(text: String) -> String {
                 }
             }
         } else {
-            colored.push(item.into());
+            colored.push(item);
         }
     }
     colored.join("")
 }
 
-fn indentation(logo: &Vec<String>) -> usize {
+fn indentation(logo: &[String]) -> usize {
     let pattern_general = Regex::new(r"(?:(?:\\\\)*\[.*?(?:\\\\)*\])?([^\[]*)").unwrap();
     let last_line = logo[logo.len() - 1].clone();
     let mut spaces: usize = 0;
@@ -105,7 +105,7 @@ fn load(text: String) -> String {
         if pattern_load.is_match(&item) {
             let captures = pattern_load.captures_iter(&item);
             let index = {
-                if loaded.len() != 0 {
+                if !loaded.is_empty() {
                     Some(loaded.len() - 1)
                 } else {
                     None
@@ -135,7 +135,7 @@ fn load(text: String) -> String {
                 }
             }
         } else {
-            loaded.push(item.into());
+            loaded.push(item);
         }
     }
     loaded.join("")
@@ -187,17 +187,17 @@ fn render(cfg: Config) -> Vec<String> {
             if cfg.oneline {
                 components_text.push(colorize(format!(
                     "{}{}: {}",
-                    component.icon.unwrap_or("".into()),
+                    component.icon.unwrap_or_else(|| "".into()),
                     component.name,
                     load(component.content)
                 )));
             } else {
                 components_text.push(colorize(format!(
                     "{}{}:",
-                    component.icon.unwrap_or("".into()),
+                    component.icon.unwrap_or_else(|| "".into()),
                     component.name
                 )));
-                components_text.push(load(colorize(format!("{}", component.content))));
+                components_text.push(load(colorize(component.content)));
             }
             if cfg.newline {
                 components_text.push("".into());
