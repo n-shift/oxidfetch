@@ -18,3 +18,12 @@ pub mod uptime {
         format!("{}", sys.uptime())
     }
 }
+
+pub mod memory {
+    use sysinfo::{System, SystemExt, RefreshKind};
+
+    pub fn fetch() -> String {
+        let sys = System::new_with_specifics(RefreshKind::new().with_memory());
+        format!("{}/{}", sys.used_memory(), sys.total_memory())
+    }
+}

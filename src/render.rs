@@ -120,6 +120,7 @@ fn load(text: String) -> String {
                         "username" => *last_item += module::host::fetch()[0].as_str(),
                         "hostname" => *last_item += module::host::fetch()[1].as_str(),
                         "os" => *last_item += module::os::fetch().as_str(),
+                        "memory" => *last_item += module::memory::fetch().as_str(),
                         &_ => (),
                     };
                 }
@@ -130,6 +131,7 @@ fn load(text: String) -> String {
                         "username" => loaded.push(module::host::fetch()[0].clone()),
                         "hostname" => loaded.push(module::host::fetch()[1].clone()),
                         "os" => loaded.push(module::os::fetch()),
+                        "memory" => loaded.push(module::memory::fetch()),
                         &_ => (),
                     };
                 }
