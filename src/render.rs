@@ -189,6 +189,9 @@ mod tests {
                         .into(),
                 },
             ],
+            newline: true,
+            spacing: 1,
+            oneline: false,
         });
 
         let expected = vec![
