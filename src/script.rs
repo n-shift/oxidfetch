@@ -89,7 +89,7 @@ impl UserData for Config {
 
         fields.add_field_method_get("oneline", |_, this| Ok(this.oneline));
         fields.add_field_method_set("oneline", |_, this, val: bool| {
-            this.newline = val;
+            this.oneline = val;
 
             Ok(())
         });
