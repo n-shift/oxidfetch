@@ -4,6 +4,7 @@ extern crate serde_derive;
 use anyhow::Result;
 
 mod config;
+mod module;
 mod render;
 mod script;
 
